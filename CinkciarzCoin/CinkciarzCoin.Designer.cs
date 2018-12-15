@@ -232,6 +232,7 @@ namespace CinkciarzCoin
 			this.btnStartRecording.TabIndex = 21;
 			this.btnStartRecording.Text = "Start recording";
 			this.btnStartRecording.UseVisualStyleBackColor = true;
+			this.btnStartRecording.Click += new System.EventHandler(this.btnStartRecording_Click);
 			// 
 			// btnStopRecording
 			// 
@@ -242,6 +243,7 @@ namespace CinkciarzCoin
 			this.btnStopRecording.Text = "Stop recording";
 			this.btnStopRecording.UseVisualStyleBackColor = true;
 			this.btnStopRecording.Visible = false;
+			this.btnStopRecording.Click += new System.EventHandler(this.btnStopRecording_Click);
 			// 
 			// btnSave
 			// 
@@ -251,6 +253,7 @@ namespace CinkciarzCoin
 			this.btnSave.TabIndex = 23;
 			this.btnSave.Text = "Save";
 			this.btnSave.UseVisualStyleBackColor = true;
+			this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
 			// 
 			// logicBindingSource
 			// 
@@ -282,6 +285,7 @@ namespace CinkciarzCoin
 			this.Controls.Add(this.btnStopRecording);
 			this.Name = "CinkciarzCoinForm";
 			this.Text = "CinkciarzCoin";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CinkciarzCoinForm_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.txbAverageRate)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.txbMaxSpread)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.txbFrequency)).EndInit();

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CinkciarzCoin.Logic;
 using NUnit.Framework;
 
@@ -84,6 +86,64 @@ namespace CinkciarzCoinTests
 		{
 			_logic.GenerateValues();
 			Assert.AreEqual(1, _logic.NumberOfDraws);
+		}
+
+		[Test]
+		public void RecordedRates_TestDefaultValue_CountIsZero()
+		{
+			Assert.Zero(_logic.RecordedRates.Count);
+		}
+
+		[Test]
+		public void RecordedRates_TestStartRecording_CountIsZero()
+		{
+			_logic.StartRecording();
+			Assert.Zero(_logic.RecordedRates.Count);
+		}
+
+		[Test]
+		public void RecordedRates_TestRecording_ValuesAdded()
+		{
+			_logic.StartRecording();
+			_logic.RecordValues();
+			Assert.AreEqual(1, _logic.RecordedRates.Count);
+		}
+
+		[Test]
+		public void RecordedRates_TestStopRecording_ValuesNotAdded()
+		{
+			_logic.StartRecording();
+			_logic.RecordValues();
+			_logic.StopRecording();
+			_logic.RecordValues();
+			Assert.AreEqual(1, _logic.RecordedRates.Count);
+		}
+
+
+		[Test]
+		public void RecordedRates_TestRecording_ValuesAddedProperly()
+		{
+			_logic.BuyRate = 1.1234m;
+			_logic.SellRate = 4.4321m;
+			_logic.StartRecording();
+			_logic.RecordValues();
+
+			BuySellRate buySellRate = _logic.RecordedRates.Values.First();
+
+			Assert.AreEqual("1,1234", buySellRate.BuyRate);
+			Assert.AreEqual("4,4321", buySellRate.SellRate);
+		}
+
+		[Test]
+		public void RecordedRates_TestGetRecordedData_ReturnsProperValues()
+		{
+			_logic.BuyRate = 1.1234m;
+			_logic.SellRate = 4.4321m;
+			_logic.StartRecording();
+			_logic.RecordValues();
+			string actual = _logic.GetRecordedData();
+
+			Assert.That(actual, Does.Contain(";1,1234;4,4321"));
 		}
 	}
 }

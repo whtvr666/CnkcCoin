@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Timers;
 using System.Windows.Forms;
 using CinkciarzCoin.Logic;
+using CinkciarzCoin.Properties;
 
 namespace CinkciarzCoin
 {
@@ -40,8 +42,8 @@ namespace CinkciarzCoin
 		private void OnTimedEvent(object sender, ElapsedEventArgs e)
 		{
 			_logic.GenerateValues();
+			_logic.RecordValues();
 			UpdateValues();
-
 		}
 
 		private void UpdateValues()
@@ -66,6 +68,45 @@ namespace CinkciarzCoin
 		{
 			_logic.Frequency = (int)txbFrequency.Value;
 			_timer.Interval = _logic.Frequency;
+		}
+
+		private void btnStartRecording_Click(object sender, EventArgs e)
+		{
+			btnStartRecording.Visible = false;
+			btnStopRecording.Visible = true;
+			_logic.StartRecording();
+		}
+
+		private void btnStopRecording_Click(object sender, EventArgs e)
+		{
+			btnStartRecording.Visible = true;
+			btnStopRecording.Visible = false;
+			_logic.StopRecording();
+		}
+
+		private void btnSave_Click(object sender, EventArgs e)
+		{
+			saveFileDialog1.DefaultExt = "csv";
+			DialogResult dialogResult = saveFileDialog1.ShowDialog();
+
+			if (dialogResult == DialogResult.OK)
+			{
+				using (StreamWriter outputFile = new StreamWriter(Path.Combine(saveFileDialog1.FileName)))
+				{
+					outputFile.Write(_logic.GetRecordedData());
+				}
+			}
+		}
+
+		private void CinkciarzCoinForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (_logic.RecordedRates.Count > 0)
+			{
+				if (MessageBox.Show(Resources.Warning_ExitWithoutSaving, Name, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+				{
+					e.Cancel = true;
+				}
+			}
 		}
 	}
 }
