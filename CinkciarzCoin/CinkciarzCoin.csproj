@@ -53,6 +53,7 @@
     <Compile Include="CinkciarzCoin.Designer.cs">
       <DependentUpon>CinkciarzCoin.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers.cs" />
     <Compile Include="Logic\AppLogic.cs" />
     <Compile Include="Logic\BuySellRate.cs" />
     <Compile Include="Program.cs" />
