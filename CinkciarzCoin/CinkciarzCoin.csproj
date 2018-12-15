@@ -52,7 +52,9 @@
     <Compile Include="CinkciarzCoin.Designer.cs">
       <DependentUpon>CinkciarzCoin.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logic\AppLogic.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CinkciarzCoin.resx">
       <DependentUpon>CinkciarzCoin.cs</DependentUpon>
@@ -79,8 +81,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Logic\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
