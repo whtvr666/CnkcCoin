@@ -31,6 +31,9 @@ namespace CinkciarzCoin
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
+			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+			System.Windows.Forms.DataVisualization.Charting.Legend legend = new System.Windows.Forms.DataVisualization.Charting.Legend();
+			System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
 			this.btnStartGenerating = new System.Windows.Forms.Button();
 			this.btnStopGenerating = new System.Windows.Forms.Button();
 			this.lblAverageRate = new System.Windows.Forms.Label();
@@ -52,10 +55,12 @@ namespace CinkciarzCoin
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
 			this.btnSave = new System.Windows.Forms.Button();
 			this.logicBindingSource = new System.Windows.Forms.BindingSource(this.components);
+			this.chrChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
 			((System.ComponentModel.ISupportInitialize)(this.txbAverageRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.txbMaxSpread)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.txbFrequency)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.logicBindingSource)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.chrChart)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// btnStartGenerating
@@ -258,11 +263,24 @@ namespace CinkciarzCoin
 			// 
 			this.logicBindingSource.DataSource = typeof(CinkciarzCoin.Logic.AppLogic);
 			// 
+			// chrChart
+			// 
+			chartArea.Name = "ChartArea";
+			this.chrChart.ChartAreas.Add(chartArea);
+			legend.Name = "Legend";
+			this.chrChart.Legends.Add(legend);
+			this.chrChart.Location = new System.Drawing.Point(213, 12);
+			this.chrChart.Name = "chrChart";
+			this.chrChart.Size = new System.Drawing.Size(768, 243);
+			this.chrChart.TabIndex = 24;
+			this.chrChart.Text = "Chart";
+			// 
 			// CinkciarzCoinForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(216, 265);
+			this.ClientSize = new System.Drawing.Size(993, 265);
+			this.Controls.Add(this.chrChart);
 			this.Controls.Add(this.btnSave);
 			this.Controls.Add(this.btnStartRecording);
 			this.Controls.Add(this.lblDrawsPerSecond);
@@ -289,6 +307,7 @@ namespace CinkciarzCoin
 			((System.ComponentModel.ISupportInitialize)(this.txbMaxSpread)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.txbFrequency)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.logicBindingSource)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.chrChart)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -317,6 +336,7 @@ namespace CinkciarzCoin
 		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
 		private System.Windows.Forms.Button btnSave;
 		private System.Windows.Forms.BindingSource logicBindingSource;
+		private System.Windows.Forms.DataVisualization.Charting.Chart chrChart;
 	}
 }
 

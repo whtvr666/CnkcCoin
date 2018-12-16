@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 using CinkciarzCoin.Logic;
 using CinkciarzCoin.Logic.Adapters;
 using CinkciarzCoin.Properties;
@@ -16,7 +17,30 @@ namespace CinkciarzCoin
 			InitializeComponent();
 			InitializeDefaultValues();
 			InitializeDataBindings();
+			InitializeChart();
 			_logic.PropertyChanged += _logic_UpdateControls;
+			_logic.DataForChartChanged += _logic_DataForChartChanged;
+		}
+
+		private void InitializeChart()
+		{
+			var series1 = new Series("BuyRate");
+			series1.ChartType = SeriesChartType.Line;
+			series1.XValueMember = "Time";
+			series1.YValueMembers = "BuyRate";
+			chrChart.Series.Add(series1);
+
+			var series2 = new Series("SellRate");
+			series2.ChartType = SeriesChartType.Line;
+			series2.XValueMember = "Time";
+			series2.YValueMembers = "SellRate";
+			chrChart.Series.Add(series2);
+
+			chrChart.DataSource = _logic.BsrCollection;
+			chrChart.ChartAreas[0].AxisY.IsStartedFromZero = false;
+			chrChart.ChartAreas[0].AxisY2.IsStartedFromZero = false;
+			chrChart.ChartAreas[0].AxisX.IsStartedFromZero = false;
+			chrChart.ChartAreas[0].AxisX.IntervalType = DateTimeIntervalType.Seconds;
 		}
 
 		private void InitializeDataBindings()
@@ -40,6 +64,12 @@ namespace CinkciarzCoin
 		}
 
 		#region Events
+
+		private void _logic_DataForChartChanged(object sender, EventArgs e)
+		{
+			Invoke((MethodInvoker)(() => chrChart.DataSource = _logic.BsrCollection));
+			Invoke((MethodInvoker)(() => chrChart.DataBind()));
+		}
 
 		private void _logic_UpdateControls(object sender, EventArgs e)
 		{

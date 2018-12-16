@@ -144,10 +144,10 @@ namespace CinkciarzCoinTests
 			_logic.StartRecording();
 			_logic.StartGenerating();
 
-			BuySellRate buySellRate = _logic.RecordedRates.Values.First();
+			BuySellRate buySellRate = _logic.RecordedRates.First();
 
-			Assert.AreEqual("3,5500", buySellRate.BuyRate);
-			Assert.AreEqual("3,8000", buySellRate.SellRate);
+			Assert.AreEqual(3.55m, buySellRate.BuyRate);
+			Assert.AreEqual(3.8m, buySellRate.SellRate);
 		}
 
 		[Test]
@@ -184,5 +184,46 @@ namespace CinkciarzCoinTests
 
 			Assert.AreEqual(0, _mockTimer.Interval);
 		}
+
+		[Test]
+		public void PropertyChangedEvent_TestEvent_IsFiredProperly()
+		{
+			bool changed = false;
+			_logic.PropertyChanged += (sender, args) => changed = true;
+			_logic.StartGenerating();
+
+			Assert.True(changed);
+		}
+
+		[Test]
+		public void DataForChartChanged_TestEvent_IsFiredProperly()
+		{
+			bool changed = false;
+			_logic.DataForChartChanged += (sender, args) => changed = true;
+			_logic.StartGenerating();
+
+			Assert.True(changed);
+		}
+
+		[Test]
+		public void BsrCollection_TestBsrCollection_ReturnsCorrectCountAfterOneRun()
+		{
+			_logic.StartGenerating();
+
+			Assert.AreEqual(1, _logic.BsrCollection.Count());
+		}
+
+		[Test]
+		public void BsrCollection_TestBsrCollection_ReturnsCorrectCountAfterOverThirtyRuns()
+		{
+			for (int i = 0; i <= 35; i++)
+			{
+				_logic.StartGenerating();
+			}
+
+			Assert.AreEqual(30, _logic.BsrCollection.Count());
+		}
+
+
 	}
 }

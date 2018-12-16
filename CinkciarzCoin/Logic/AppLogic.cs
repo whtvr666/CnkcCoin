@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Timers;
@@ -12,6 +13,7 @@ namespace CinkciarzCoin.Logic
 {
 	public class AppLogic : INotifyPropertyChanged
 	{
+		public event EventHandler DataForChartChanged;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		private readonly IRandom _random;
@@ -28,18 +30,18 @@ namespace CinkciarzCoin.Logic
 			AverageRate = 3.55m;
 			MaxSpread = 0.5m;
 			Frequency = 1000;
-			RecordedRates = new Dictionary<DateTime, BuySellRate>();
+			RecordedRates = new List<BuySellRate>();
 		}
 
 		public string GetRecordedData()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			foreach (var kvp in RecordedRates)
+			foreach (var buySellRate in RecordedRates)
 			{
-				stringBuilder.AppendLine($"{kvp.Key.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)};{kvp.Value.BuyRate};{kvp.Value.SellRate}");
+				stringBuilder.AppendLine($"{buySellRate.Time.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)};{buySellRate.BuyRate:0.0000};{buySellRate.SellRate:0.0000}");
 			}
 
-			RecordedRates = new Dictionary<DateTime, BuySellRate>();
+			RecordedRates = new List<BuySellRate>();
 			return stringBuilder.ToString();
 		}
 
@@ -50,7 +52,7 @@ namespace CinkciarzCoin.Logic
 
 		public void StartRecording()
 		{
-			RecordedRates = new Dictionary<DateTime, BuySellRate>();
+			RecordedRates = new List<BuySellRate>();
 			_isRecording = true;
 		}
 
@@ -73,6 +75,12 @@ namespace CinkciarzCoin.Logic
 		{
 			BuyRate = DrawNewValue(MinValue, AverageRate);
 			SellRate = DrawNewValue(AverageRate, MaxValue);
+			_bsrCollection.Add(new BuySellRate(DateTime.Now, BuyRate, SellRate));
+		}
+
+		private void NotifyDataForChartChanged()
+		{
+			DataForChartChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		[NotifyPropertyChangedInvocator]
@@ -85,19 +93,30 @@ namespace CinkciarzCoin.Logic
 		{
 			GenerateValues();
 			RecordValues();
+			NotifyDataForChartChanged();
 		}
 
 		private void RecordValues()
 		{
 			if (_isRecording)
 			{
-				RecordedRates.Add(DateTime.Now, new BuySellRate(BuyRate.ToString("0.0000"), SellRate.ToString("0.0000")));
+				RecordedRates.Add(new BuySellRate(DateTime.Now, BuyRate, SellRate));
 			}
 		}
 
 		#region PROPERTIES
 
-		public Dictionary<DateTime, BuySellRate> RecordedRates { get; set; }
+		private readonly List<BuySellRate> _bsrCollection = new List<BuySellRate>();
+
+		public IEnumerable<BuySellRate> BsrCollection
+		{
+			get
+			{
+				return _bsrCollection.Skip(_bsrCollection.Count - 30).Take(30);
+			}
+		}
+
+		public List<BuySellRate> RecordedRates { get; set; }
 
 		public decimal AverageRate
 		{
