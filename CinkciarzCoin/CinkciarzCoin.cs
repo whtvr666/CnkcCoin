@@ -43,7 +43,7 @@ namespace CinkciarzCoin
 
 		private void _logic_UpdateControls(object sender, EventArgs e)
 		{
-			BeginInvoke((MethodInvoker)(() => logicBindingSource.ResetBindings(false)));
+			Invoke((MethodInvoker)(() => logicBindingSource.ResetBindings(false)));
 		}
 
 		private void btnSave_Click(object sender, EventArgs e)

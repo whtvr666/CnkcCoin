@@ -21,12 +21,12 @@ namespace CinkciarzCoinTests
 		{
 			_mockTimer = A.Fake<ITimer>();
 			_mockRandom = A.Fake<IRandom>();
-		#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
 			A.CallTo(() => _mockTimer.Start()).Invokes(() => _mockTimer.Elapsed += Raise.With<ElapsedEventHandler>(new object(), new EventArgs() as ElapsedEventArgs));
-		#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 			_logic = new AppLogic(_mockTimer, _mockRandom);
 		}
-		
+
 		[Test]
 		public void AverageRate_TestDefaultValue_IsAsExpected()
 		{
@@ -90,7 +90,7 @@ namespace CinkciarzCoinTests
 		[Test]
 		public void NumberOfDraws_TestDefaultValue_IsAsExpected()
 		{
-			Assert.Zero(_logic.NumberOfDraws);
+			Assert.AreEqual(1, _logic.NumberOfDraws);
 		}
 
 		[Test]

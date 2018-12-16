@@ -73,8 +73,6 @@ namespace CinkciarzCoin.Logic
 		{
 			BuyRate = DrawNewValue(MinValue, AverageRate);
 			SellRate = DrawNewValue(AverageRate, MaxValue);
-			CurrentSpread = SellRate - BuyRate;
-			NumberOfDraws = Math.Round(1000 / Convert.ToDecimal(Frequency), 2);
 		}
 
 		[NotifyPropertyChangedInvocator]
@@ -139,7 +137,7 @@ namespace CinkciarzCoin.Logic
 			{
 				_frequency = value;
 				_timer.Interval = value;
-				NotifyPropertyChanged(nameof(Frequency));
+				NotifyPropertyChanged();
 			}
 		}
 
@@ -173,33 +171,19 @@ namespace CinkciarzCoin.Logic
 			}
 		}
 
-		private decimal _currentSpread;
-
 		public decimal CurrentSpread
 		{
 			get
 			{
-				return _currentSpread;
-			}
-			set
-			{
-				_currentSpread = value;
-				NotifyPropertyChanged(nameof(CurrentSpread));
+				return SellRate - BuyRate;
 			}
 		}
-
-		private decimal _numDraws;
 
 		public decimal NumberOfDraws
 		{
 			get
 			{
-				return _numDraws;
-			}
-			set
-			{
-				_numDraws = value;
-				NotifyPropertyChanged(nameof(NumberOfDraws));
+				return Math.Round(1000 / Convert.ToDecimal(Frequency), 2);
 			}
 		}
 
