@@ -205,7 +205,6 @@ namespace CinkciarzCoin
             0,
             0,
             0});
-			this.txbFrequency.ValueChanged += new System.EventHandler(this.txbFrequency_ValueChanged);
 			// 
 			// lblDrawsPerSecond
 			// 

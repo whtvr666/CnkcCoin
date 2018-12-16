@@ -53,9 +53,12 @@
     <Compile Include="CinkciarzCoin.Designer.cs">
       <DependentUpon>CinkciarzCoin.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers.cs" />
+    <Compile Include="Logic\Adapters\RandomAdapter.cs" />
+    <Compile Include="Logic\Adapters\TimerAdapter.cs" />
     <Compile Include="Logic\AppLogic.cs" />
     <Compile Include="Logic\BuySellRate.cs" />
+    <Compile Include="Logic\Interfaces\IRandom.cs" />
+    <Compile Include="Logic\Interfaces\ITimer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

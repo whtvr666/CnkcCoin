@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Timers;
 using CinkciarzCoin.Annotations;
+using CinkciarzCoin.Logic.Interfaces;
 
 namespace CinkciarzCoin.Logic
 {
@@ -12,18 +14,90 @@ namespace CinkciarzCoin.Logic
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		private readonly Random _random = new Random();
+		private readonly IRandom _random;
+		private readonly ITimer _timer;
 		private decimal _averageRate;
 		private bool _isRecording;
 		private decimal _maxSpread;
 
-		public AppLogic()
+		public AppLogic(ITimer timer, IRandom random)
 		{
+			_timer = timer;
+			_timer.Elapsed += OnTimedEvent;
+			_random = random;
 			AverageRate = 3.55m;
 			MaxSpread = 0.5m;
 			Frequency = 1000;
 			RecordedRates = new Dictionary<DateTime, BuySellRate>();
 		}
+
+		public string GetRecordedData()
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+			foreach (var kvp in RecordedRates)
+			{
+				stringBuilder.AppendLine($"{kvp.Key.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)};{kvp.Value.BuyRate};{kvp.Value.SellRate}");
+			}
+
+			RecordedRates = new Dictionary<DateTime, BuySellRate>();
+			return stringBuilder.ToString();
+		}
+
+		public void StartGenerating()
+		{
+			_timer.Start();
+		}
+
+		public void StartRecording()
+		{
+			RecordedRates = new Dictionary<DateTime, BuySellRate>();
+			_isRecording = true;
+		}
+
+		public void StopGenerating()
+		{
+			_timer.Stop();
+		}
+
+		public void StopRecording()
+		{
+			_isRecording = false;
+		}
+
+		private decimal DrawNewValue(decimal min, decimal max)
+		{
+			return Math.Round(Convert.ToDecimal(_random.NextDouble() * Convert.ToDouble(max - min) + Convert.ToDouble(min)), 4);
+		}
+
+		private void GenerateValues()
+		{
+			BuyRate = DrawNewValue(MinValue, AverageRate);
+			SellRate = DrawNewValue(AverageRate, MaxValue);
+			CurrentSpread = SellRate - BuyRate;
+			NumberOfDraws = Math.Round(1000 / Convert.ToDecimal(Frequency), 2);
+		}
+
+		[NotifyPropertyChangedInvocator]
+		private void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		private void OnTimedEvent(object sender, ElapsedEventArgs e)
+		{
+			GenerateValues();
+			RecordValues();
+		}
+
+		private void RecordValues()
+		{
+			if (_isRecording)
+			{
+				RecordedRates.Add(DateTime.Now, new BuySellRate(BuyRate.ToString("0.0000"), SellRate.ToString("0.0000")));
+			}
+		}
+
+		#region PROPERTIES
 
 		public Dictionary<DateTime, BuySellRate> RecordedRates { get; set; }
 
@@ -53,15 +127,81 @@ namespace CinkciarzCoin.Logic
 			}
 		}
 
-		public int Frequency { get; set; }
+		private int _frequency;
 
-		public decimal BuyRate { get; set; }
+		public int Frequency
+		{
+			get
+			{
+				return _frequency;
+			}
+			set
+			{
+				_frequency = value;
+				_timer.Interval = value;
+				NotifyPropertyChanged(nameof(Frequency));
+			}
+		}
 
-		public decimal SellRate { get; set; }
+		private decimal _buyRate;
 
-		public decimal CurrentSpread { get; set; }
+		public decimal BuyRate
+		{
+			get
+			{
+				return _buyRate;
+			}
+			set
+			{
+				_buyRate = value;
+				NotifyPropertyChanged(nameof(BuyRate));
+			}
+		}
 
-		public decimal NumberOfDraws { get; set; }
+		private decimal _sellRate;
+
+		public decimal SellRate
+		{
+			get
+			{
+				return _sellRate;
+			}
+			set
+			{
+				_sellRate = value;
+				NotifyPropertyChanged(nameof(SellRate));
+			}
+		}
+
+		private decimal _currentSpread;
+
+		public decimal CurrentSpread
+		{
+			get
+			{
+				return _currentSpread;
+			}
+			set
+			{
+				_currentSpread = value;
+				NotifyPropertyChanged(nameof(CurrentSpread));
+			}
+		}
+
+		private decimal _numDraws;
+
+		public decimal NumberOfDraws
+		{
+			get
+			{
+				return _numDraws;
+			}
+			set
+			{
+				_numDraws = value;
+				NotifyPropertyChanged(nameof(NumberOfDraws));
+			}
+		}
 
 		private decimal MinValue
 		{
@@ -79,49 +219,6 @@ namespace CinkciarzCoin.Logic
 			}
 		}
 
-		public void GenerateValues()
-		{
-			BuyRate = Math.Round(Convert.ToDecimal(_random.NextDouble() * Convert.ToDouble(AverageRate - MinValue) + Convert.ToDouble(MinValue)), 4);
-			SellRate = Math.Round(Convert.ToDecimal(_random.NextDouble() * Convert.ToDouble(MaxValue - AverageRate) + Convert.ToDouble(AverageRate)), 4);
-			CurrentSpread = SellRate - BuyRate;
-			NumberOfDraws = Math.Round(1000 / Convert.ToDecimal(Frequency), 2);
-		}
-
-		public string GetRecordedData()
-		{
-			StringBuilder stringBuilder = new StringBuilder();
-			foreach (var kvp in RecordedRates)
-			{
-				stringBuilder.AppendLine($"{kvp.Key.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)};{kvp.Value.BuyRate};{kvp.Value.SellRate}");
-			}
-
-			RecordedRates = new Dictionary<DateTime, BuySellRate>();
-			return stringBuilder.ToString();
-		}
-
-		public void RecordValues()
-		{
-			if (_isRecording)
-			{
-				RecordedRates.Add(DateTime.Now, new BuySellRate(BuyRate.ToString("0.0000"), SellRate.ToString("0.0000")));
-			}
-		}
-
-		public void StartRecording()
-		{
-			RecordedRates = new Dictionary<DateTime, BuySellRate>();
-			_isRecording = true;
-		}
-
-		public void StopRecording()
-		{
-			_isRecording = false;
-		}
-
-		[NotifyPropertyChangedInvocator]
-		protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
+		#endregion PROPERTIES
 	}
 }

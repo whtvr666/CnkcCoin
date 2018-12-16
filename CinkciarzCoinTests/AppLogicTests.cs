@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using CinkciarzCoin.Logic;
+using CinkciarzCoin.Logic.Interfaces;
+using FakeItEasy;
 using NUnit.Framework;
 
 namespace CinkciarzCoinTests
@@ -10,13 +12,21 @@ namespace CinkciarzCoinTests
 	public class AppLogicTests
 	{
 		private AppLogic _logic;
+		private ITimer _mockTimer;
+		private IRandom _mockRandom;
+		private double _randomValue;
 
 		[SetUp]
 		public void BeforeEach()
 		{
-			_logic = new AppLogic();
+			_mockTimer = A.Fake<ITimer>();
+			_mockRandom = A.Fake<IRandom>();
+		#pragma warning disable CS0618 // Type or member is obsolete
+			A.CallTo(() => _mockTimer.Start()).Invokes(() => _mockTimer.Elapsed += Raise.With<ElapsedEventHandler>(new object(), new EventArgs() as ElapsedEventArgs));
+		#pragma warning restore CS0618 // Type or member is obsolete
+			_logic = new AppLogic(_mockTimer, _mockRandom);
 		}
-
+		
 		[Test]
 		public void AverageRate_TestDefaultValue_IsAsExpected()
 		{
@@ -35,7 +45,6 @@ namespace CinkciarzCoinTests
 			Assert.AreEqual(1000, _logic.Frequency);
 		}
 
-
 		[Test]
 		public void BuyRate_TestDefaultValue_IsAsExpected()
 		{
@@ -45,7 +54,8 @@ namespace CinkciarzCoinTests
 		[Test]
 		public void BuyRate_TestGeneratingValues_ReturnsCorrectValue()
 		{
-			_logic.GenerateValues();
+			_logic.StartGenerating();
+
 			Assert.NotZero(_logic.BuyRate);
 		}
 
@@ -58,7 +68,8 @@ namespace CinkciarzCoinTests
 		[Test]
 		public void SellRate_TestGeneratingValues_ReturnsCorrectValue()
 		{
-			_logic.GenerateValues();
+			_logic.StartGenerating();
+
 			Assert.NotZero(_logic.SellRate);
 		}
 
@@ -71,7 +82,8 @@ namespace CinkciarzCoinTests
 		[Test]
 		public void CurrentSpread_TestGeneratingValues_ReturnsCorrectValue()
 		{
-			_logic.GenerateValues();
+			_logic.StartGenerating();
+
 			Assert.NotZero(_logic.CurrentSpread);
 		}
 
@@ -84,7 +96,8 @@ namespace CinkciarzCoinTests
 		[Test]
 		public void NumberOfDraws_TestGeneratingValues_ReturnsCorrectValue()
 		{
-			_logic.GenerateValues();
+			_logic.StartGenerating();
+
 			Assert.AreEqual(1, _logic.NumberOfDraws);
 		}
 
@@ -98,6 +111,7 @@ namespace CinkciarzCoinTests
 		public void RecordedRates_TestStartRecording_CountIsZero()
 		{
 			_logic.StartRecording();
+
 			Assert.Zero(_logic.RecordedRates.Count);
 		}
 
@@ -105,7 +119,8 @@ namespace CinkciarzCoinTests
 		public void RecordedRates_TestRecording_ValuesAdded()
 		{
 			_logic.StartRecording();
-			_logic.RecordValues();
+			_logic.StartGenerating();
+
 			Assert.AreEqual(1, _logic.RecordedRates.Count);
 		}
 
@@ -113,9 +128,10 @@ namespace CinkciarzCoinTests
 		public void RecordedRates_TestStopRecording_ValuesNotAdded()
 		{
 			_logic.StartRecording();
-			_logic.RecordValues();
+			_logic.StartGenerating();
 			_logic.StopRecording();
-			_logic.RecordValues();
+			_logic.StartGenerating();
+
 			Assert.AreEqual(1, _logic.RecordedRates.Count);
 		}
 
@@ -123,27 +139,50 @@ namespace CinkciarzCoinTests
 		[Test]
 		public void RecordedRates_TestRecording_ValuesAddedProperly()
 		{
-			_logic.BuyRate = 1.1234m;
-			_logic.SellRate = 4.4321m;
+			_randomValue = 1;
+			A.CallTo(() => _mockRandom.NextDouble()).Returns(_randomValue);
 			_logic.StartRecording();
-			_logic.RecordValues();
+			_logic.StartGenerating();
 
 			BuySellRate buySellRate = _logic.RecordedRates.Values.First();
 
-			Assert.AreEqual("1,1234", buySellRate.BuyRate);
-			Assert.AreEqual("4,4321", buySellRate.SellRate);
+			Assert.AreEqual("3,5500", buySellRate.BuyRate);
+			Assert.AreEqual("3,8000", buySellRate.SellRate);
 		}
 
 		[Test]
 		public void RecordedRates_TestGetRecordedData_ReturnsProperValues()
 		{
-			_logic.BuyRate = 1.1234m;
-			_logic.SellRate = 4.4321m;
+			_randomValue = 1;
+			A.CallTo(() => _mockRandom.NextDouble()).Returns(_randomValue);
 			_logic.StartRecording();
-			_logic.RecordValues();
+			_logic.StartGenerating();
+
 			string actual = _logic.GetRecordedData();
 
-			Assert.That(actual, Does.Contain(";1,1234;4,4321"));
+			Assert.That(actual, Does.Match("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2};3,5500;3,8000"));
+		}
+
+		[Test]
+		public void RecordedRates_TestGetRecordedData_ReturnsMultipleLines()
+		{
+			_logic.StartRecording();
+			_logic.StartGenerating();
+			_logic.StartGenerating();
+
+			var lines = _logic.GetRecordedData().Split('\n');
+
+			Assert.AreEqual(3, lines.Length); //+1 due to empty line at the end
+		}
+
+		[Test]
+		public void Timer_TestTimerStop_ResetTimerInterval()
+		{
+			A.CallTo(() => _mockTimer.Stop()).Invokes(() => _mockTimer.Interval = 0);
+
+			_logic.StopGenerating();
+
+			Assert.AreEqual(0, _mockTimer.Interval);
 		}
 	}
 }
