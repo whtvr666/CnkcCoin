@@ -199,7 +199,7 @@ namespace CinkciarzCoinTests
 		public void DataForChartChanged_TestEvent_IsFiredProperly()
 		{
 			bool changed = false;
-			_logic.DataForChartChanged += (sender, args) => changed = true;
+			_logic.DataForControlsChanged += (sender, args) => changed = true;
 			_logic.StartGenerating();
 
 			Assert.True(changed);
@@ -210,7 +210,7 @@ namespace CinkciarzCoinTests
 		{
 			_logic.StartGenerating();
 
-			Assert.AreEqual(1, _logic.BsrCollection.Count());
+			Assert.AreEqual(1, _logic.GetBsrCollectionDataForChart().Count());
 		}
 
 		[Test]
@@ -221,7 +221,7 @@ namespace CinkciarzCoinTests
 				_logic.StartGenerating();
 			}
 
-			Assert.AreEqual(30, _logic.BsrCollection.Count());
+			Assert.AreEqual(30, _logic.GetBsrCollectionDataForChart().Count());
 		}
 
 

@@ -13,12 +13,14 @@ namespace CinkciarzCoin.Logic
 {
 	public class AppLogic : INotifyPropertyChanged
 	{
-		public event EventHandler DataForChartChanged;
+		public event EventHandler DataForControlsChanged;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		private readonly IRandom _random;
 		private readonly ITimer _timer;
 		private decimal _averageRate;
+
+		private readonly List<BuySellRate> _bsrCollection = new List<BuySellRate>();
 		private bool _isRecording;
 		private decimal _maxSpread;
 
@@ -31,6 +33,11 @@ namespace CinkciarzCoin.Logic
 			MaxSpread = 0.5m;
 			Frequency = 1000;
 			RecordedRates = new List<BuySellRate>();
+		}
+
+		public IEnumerable<BuySellRate> GetBsrCollectionDataForChart()
+		{
+			return _bsrCollection.Skip(_bsrCollection.Count - 30).Take(30);
 		}
 
 		public string GetRecordedData()
@@ -78,9 +85,9 @@ namespace CinkciarzCoin.Logic
 			_bsrCollection.Add(new BuySellRate(DateTime.Now, BuyRate, SellRate));
 		}
 
-		private void NotifyDataForChartChanged()
+		private void NotifyDataForControlsChanged()
 		{
-			DataForChartChanged?.Invoke(this, EventArgs.Empty);
+			DataForControlsChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		[NotifyPropertyChangedInvocator]
@@ -93,7 +100,7 @@ namespace CinkciarzCoin.Logic
 		{
 			GenerateValues();
 			RecordValues();
-			NotifyDataForChartChanged();
+			NotifyDataForControlsChanged();
 		}
 
 		private void RecordValues()
@@ -105,16 +112,6 @@ namespace CinkciarzCoin.Logic
 		}
 
 		#region PROPERTIES
-
-		private readonly List<BuySellRate> _bsrCollection = new List<BuySellRate>();
-
-		public IEnumerable<BuySellRate> BsrCollection
-		{
-			get
-			{
-				return _bsrCollection.Skip(_bsrCollection.Count - 30).Take(30);
-			}
-		}
 
 		public List<BuySellRate> RecordedRates { get; set; }
 

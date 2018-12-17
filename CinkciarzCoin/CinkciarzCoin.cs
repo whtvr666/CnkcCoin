@@ -18,8 +18,7 @@ namespace CinkciarzCoin
 			InitializeDefaultValues();
 			InitializeDataBindings();
 			InitializeChart();
-			_logic.PropertyChanged += _logic_UpdateControls;
-			_logic.DataForChartChanged += _logic_DataForChartChanged;
+			_logic.DataForControlsChanged += LogicDataForControlsChanged;
 		}
 
 		private void InitializeChart()
@@ -36,7 +35,7 @@ namespace CinkciarzCoin
 			series2.YValueMembers = "SellRate";
 			chrChart.Series.Add(series2);
 
-			chrChart.DataSource = _logic.BsrCollection;
+			chrChart.DataSource = _logic.GetBsrCollectionDataForChart();
 			chrChart.ChartAreas[0].AxisY.IsStartedFromZero = false;
 			chrChart.ChartAreas[0].AxisY2.IsStartedFromZero = false;
 			chrChart.ChartAreas[0].AxisX.IsStartedFromZero = false;
@@ -65,14 +64,10 @@ namespace CinkciarzCoin
 
 		#region Events
 
-		private void _logic_DataForChartChanged(object sender, EventArgs e)
+		private void LogicDataForControlsChanged(object sender, EventArgs e)
 		{
-			Invoke((MethodInvoker)(() => chrChart.DataSource = _logic.BsrCollection));
+			Invoke((MethodInvoker)(() => chrChart.DataSource = _logic.GetBsrCollectionDataForChart()));
 			Invoke((MethodInvoker)(() => chrChart.DataBind()));
-		}
-
-		private void _logic_UpdateControls(object sender, EventArgs e)
-		{
 			Invoke((MethodInvoker)(() => logicBindingSource.ResetBindings(false)));
 		}
 
